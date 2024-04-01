@@ -1,0 +1,41 @@
+name: oneflutter
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  cloud_firestore: ^4.15.10
+  firebase_core: ^2.27.2
+  firebase_auth: ^4.18.0
+  firebase_analytics: ^10.9.0
+  firebase_crashlytics: ^3.4.20
+  intl: ^0.19.0
+  logger: ^2.2.0
+  flutter_native_splash: ^2.4.0
+
+flutter_native_splash:
+  color: "42a5f5"
+  image: assets/splash.png
+  image_dark: assets/splash.png
+  ios: true
+  android: true
+
+assets:
+  - assets/splash.png
+  - assets/splash.png
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

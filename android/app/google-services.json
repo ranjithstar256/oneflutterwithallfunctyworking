@@ -1,0 +1,182 @@
+{
+  "project_info": {
+    "project_number": "846264121883",
+    "firebase_url": "https://twofour-fef75-default-rtdb.firebaseio.com",
+    "project_id": "twofour-fef75",
+    "storage_bucket": "twofour-fef75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:4d83acf8eace787a1996be",
+        "android_client_info": {
+          "package_name": "com.alftendev.notlistener"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:d5914dcca8f4c1591996be",
+        "android_client_info": {
+          "package_name": "com.example.college"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:dcc4f339577a099b1996be",
+        "android_client_info": {
+          "package_name": "com.example.easychat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:b3e300d8b7f2de711996be",
+        "android_client_info": {
+          "package_name": "com.example.firestoreexpl_ltsu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:a92806bf8e2413d21996be",
+        "android_client_info": {
+          "package_name": "com.example.internetretrojav"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:bc26b60acde0cbac1996be",
+        "android_client_info": {
+          "package_name": "com.example.manasaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:52bdaa39061c17d11996be",
+        "android_client_info": {
+          "package_name": "com.example.oneflutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:5211c415f9029fe91996be",
+        "android_client_info": {
+          "package_name": "kp.ran.firebaseexplfirestore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846264121883:android:2508520b11ee34821996be",
+        "android_client_info": {
+          "package_name": "kp.ran.kotlinfirebaseotp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPe1TF95obxu0elLjWKePrlbkVz63Mo0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
