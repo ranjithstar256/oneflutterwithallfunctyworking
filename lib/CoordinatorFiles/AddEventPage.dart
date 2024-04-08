@@ -2,7 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:oneflutter/AllEvents.dart';
+import 'package:oneflutter/ParticipantsFiles/AllEvents.dart';
+
+import '../ParticipantsFiles/RegisteringForEvent.dart';
+import '../Registrations/LoginPage.dart';
+import '../main.dart';
+import 'ViewingGameRegistrationsPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +36,67 @@ class AddEventPage extends StatefulWidget {
 }
 
 class _AddEventPageState extends State<AddEventPage> {
+  final List<String> menuItems = [
+    'Add Event',
+    'All Events',
+    'Main Page',
+    'Home Page',
+    'Login Page',
+    'Event Registration Page',
+  ];
+
+  // Method to handle menu item selection
+  void _handleMenuItemSelected(String menuItem) {
+    switch (menuItem) {
+      case 'Add Event':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AddEventPage()),
+        );
+        break;
+      case 'All Events':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AllEvents()),
+        );
+        break;
+      case 'Main Page':
+        // Navigate to the main page (replace with appropriate route)
+        break;
+      case 'Home Page':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+        // Navigate to the home page (replace with appropriate route)
+        break;
+      case 'Login Page':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+        break;
+      case 'Event Registration Page':
+        // Navigate to the event registration page (replace with appropriate route)
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EventRegistrationPage(
+                  eventName: "VollyBall",
+                  eventDate: "04-04-2024",
+                  venue: "SDM College",
+                  isTeamGame: true,
+                  coordinatorId: "0256")),
+        );
+        break;
+      case 'View Registration Page':
+        // Navigate to the event registration page (replace with appropriate route)
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ViewRegistrationPage()));
+        break;
+    }
+  }
+
   final TextEditingController _venueController = TextEditingController();
   String _participantType = 'Both'; // Default participant type
   String _gameType = 'Individual'; // Default game type
@@ -342,6 +408,20 @@ class _AddEventPageState extends State<AddEventPage> {
               ),
             ],
           ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: PopupMenuButton<String>(
+          onSelected: _handleMenuItemSelected,
+          itemBuilder: (BuildContext context) {
+            return menuItems.map((String menuItem) {
+              return PopupMenuItem<String>(
+                value: menuItem,
+                child: Text(menuItem),
+              );
+            }).toList();
+          },
         ),
       ),
     );

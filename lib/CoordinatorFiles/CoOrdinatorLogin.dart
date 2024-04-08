@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'AddEventPage.dart';
+import 'ViewingGameRegistrationsPage.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -38,15 +41,17 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
     // Check if the combo exists in Firestore
     QuerySnapshot querySnapshot = await _firestore
         .collection('coordinator')
-        .where('collegeName', isEqualTo: collegeName)
+        //.where('collegeName', isEqualTo: collegeName)
         .where('collegeId', isEqualTo: collegeId)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
+      _showDialog(context);
+
       // Combo exists
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Combo is valid!'),
+          content: Text('College ID is valid!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -54,11 +59,43 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
       // Combo does not exist
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Combo is invalid!'),
+          content: Text('College ID is invalid!'),
           backgroundColor: Colors.red,
         ),
       );
     }
+  }
+
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose an action'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ViewRegistrationPage()),
+                );
+              },
+              child: const Text('View Registration'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddEventPage()),
+                );
+              },
+              child: const Text('Add Event'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
