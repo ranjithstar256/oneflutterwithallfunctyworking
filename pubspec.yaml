@@ -21,6 +21,8 @@ dependencies:
   logger: ^2.2.0
   flutter_native_splash: ^2.4.0
   shared_preferences: ^2.2.2
+  image_picker: ^1.0.8
+  firebase_storage: ^11.7.1
 
 flutter_native_splash:
   color: "42a5f5"

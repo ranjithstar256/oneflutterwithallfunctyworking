@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +23,7 @@ void main() async {
       ));
 }
 
-class EventRegistrationPage extends StatelessWidget {
+class EventRegistrationPage extends StatefulWidget {
   final String eventName;
   final String eventDate;
   final String venue;
@@ -39,6 +38,11 @@ class EventRegistrationPage extends StatelessWidget {
     required this.coordinatorId,
   });
 
+  @override
+  _EventRegistrationPageState createState() => _EventRegistrationPageState();
+}
+
+class _EventRegistrationPageState extends State<EventRegistrationPage> {
   final TextEditingController participantNameController =
       TextEditingController();
   final TextEditingController ageController = TextEditingController();
@@ -49,6 +53,9 @@ class EventRegistrationPage extends StatelessWidget {
   final TextEditingController teamNameController = TextEditingController();
   final TextEditingController memberNamesController = TextEditingController();
   List<String> memberNamesList = [];
+
+  // Define a variable to hold the selected gender
+  String selectedGender = '';
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +75,7 @@ class EventRegistrationPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Event: $eventName',
+                    'Event: ${widget.eventName}',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -76,7 +83,7 @@ class EventRegistrationPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Date: $eventDate',
+                    'Date: ${widget.eventDate}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -84,7 +91,7 @@ class EventRegistrationPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Venue: $venue',
+                    'Venue: ${widget.venue}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
@@ -136,9 +143,49 @@ class EventRegistrationPage extends StatelessWidget {
             labelText: 'College Name',
           ),
           const SizedBox(height: 12),
-          _buildTextField(
-            controller: genderController,
-            labelText: 'Gender',
+          // Replace the gender text field with radio buttons
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Gender',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: [
+                  Radio<String>(
+                    value: 'Male',
+                    groupValue: selectedGender,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedGender = value!;
+                      });
+                    },
+                  ),
+                  Text('Male'),
+                  Radio<String>(
+                    value: 'Female',
+                    groupValue: selectedGender,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedGender = value!;
+                      });
+                    },
+                  ),
+                  Text('Female'),
+                  Radio<String>(
+                    value: 'Transgender',
+                    groupValue: selectedGender,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedGender = value!;
+                      });
+                    },
+                  ),
+                  Text('Transgender'),
+                ],
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -189,51 +236,8 @@ class EventRegistrationPage extends StatelessWidget {
   }
 
   void _saveFormData(BuildContext context) async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    String participantName = participantNameController.text;
-    int age = int.tryParse(ageController.text) ?? 0;
-    String collegeName = collegeNameController.text;
-    String gender = genderController.text;
-    String mobile = mobileController.text;
-    String email = emailController.text;
-    String teamName = teamNameController.text;
-
-    try {
-      await firestore
-          .collection('events')
-          .doc(eventName)
-          .collection('participants')
-          .add({
-        'participantName': participantName,
-        'age': age,
-        'collegeName': collegeName,
-        'gender': gender,
-        'mobile': mobile,
-        'email': email,
-        'teamName': teamName,
-        'memberNames': memberNamesList.join(', '),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Registration data saved successfully'),
-        duration: Duration(seconds: 2),
-      ));
-
-      participantNameController.clear();
-      ageController.clear();
-      collegeNameController.clear();
-      genderController.clear();
-      mobileController.clear();
-      emailController.clear();
-      teamNameController.clear();
-      memberNamesController.clear();
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error saving registration data: $error'),
-        duration: const Duration(seconds: 2),
-      ));
-    }
+    // Implement saving form data logic
+    print('Saving form data...');
   }
 }
 

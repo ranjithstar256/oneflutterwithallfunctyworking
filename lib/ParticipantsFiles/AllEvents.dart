@@ -76,11 +76,31 @@ class AllEvents extends StatelessWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
+            final currentDate = DateTime.now();
+
+            final upcomingEvents = snapshot.data!.docs.where((doc) {
+              final eventData = doc.data() as Map<String, dynamic>;
+              final dateString = eventData['eventDate'] as String;
+              final parts = dateString.split(' ');
+              final dateParts = parts[0].split('-');
+              final timeParts = parts[1].split(':');
+              final year = int.parse(dateParts[0]);
+              final month = int.parse(dateParts[1]);
+              final day = int.parse(dateParts[2]);
+              final hour = int.parse(timeParts[0]);
+              final minute = int.parse(timeParts[1]);
+              final eventDate = DateTime(year, month, day, hour, minute);
+              return eventDate.isAfter(currentDate);
+
+              return eventDate.isAfter(currentDate);
+            }).toList();
+
             return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
+              itemCount: upcomingEvents.length,
               itemBuilder: (context, index) {
-                var data =
-                    snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                var data = upcomingEvents[index].data() as Map<String, dynamic>;
+
+                logger.i('Event Date: ${data['eventDate']}');
 
                 return Card(
                   elevation: 4,
