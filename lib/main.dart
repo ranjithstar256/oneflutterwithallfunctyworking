@@ -17,20 +17,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Select an option',
+      title: 'SportArena',
       theme: ThemeData(
-        primaryColor: Color(0xFF4C9085), // Set primary color to #4C9085
+        primaryColor: const Color(0xFF4C9085), // Set primary color to #4C9085
         hintColor: Colors.white, // Set accent color to white
         scaffoldBackgroundColor:
             Colors.white, // Set scaffold background color to white
-        textTheme: TextTheme(
-          bodyText1:
+        textTheme: const TextTheme(
+          bodyLarge:
               TextStyle(color: Colors.black87), // Set body text color to black
-          bodyText2:
+          bodyMedium:
               TextStyle(color: Colors.black87), // Set body text color to black
-          subtitle1: TextStyle(
+          titleMedium: TextStyle(
               color: Colors.black87), // Set subtitle text color to black
-          subtitle2: TextStyle(
+          titleSmall: TextStyle(
               color: Colors.black87), // Set subtitle text color to black
         ),
       ),
@@ -38,11 +38,13 @@ class MyApp extends StatelessWidget {
         future: checkIfLoggedIn(), // Check if user is already logged in
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
           // If user is already logged in, navigate to main content
           if (snapshot.data == true) {
-            return AllEvents();
+            return AllEvents(
+              coordinatorId: '',
+            );
           } else {
             // Otherwise, navigate to login page
             return HomePage();
@@ -73,7 +75,7 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
               child: const Text('Participant'),

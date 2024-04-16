@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:oneflutter/ParticipantsFiles/AllEvents.dart';
 import 'package:oneflutter/Registrations/signuppage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -132,10 +131,10 @@ class _LoginPageState extends State<LoginPage> {
                 setLoggedIn(true);
 
                 // Navigate to next page
-                Navigator.push(
+                /* Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AllEvents()),
-                );
+                );*/
               },
               child: const Text('Sign In'),
             ),

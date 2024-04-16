@@ -59,7 +59,7 @@ class _AllCollegeEventsState extends State<AllCollegeEvents> {
               return ListTile(
                 title: Text(document['collegeName']),
                 subtitle: Text(
-                    'Coordinator: ${document['coordinatorName']}\nDate: ${_formatDate(document['fromDate'])} - ${_formatDate(document['toDate'])}'),
+                    'Coordinator: ${document['coordinatorName']}\nDate: ${document['FromDate']} - ${document['toDate']}'),
                 leading: Image.network(document['collegePicUrl']),
                 // Add more details as needed
               );
@@ -68,36 +68,5 @@ class _AllCollegeEventsState extends State<AllCollegeEvents> {
         },
       ),
     );
-  }
-
-  String _formatDate(dynamic timestamp) {
-    if (timestamp is Timestamp) {
-      var date = timestamp.toDate();
-      return '${date.year}-${date.month}-${date.day}';
-    } else if (timestamp is String) {
-      // Handle string timestamp format if needed
-      // Assuming the string format is "8 May 2024 at 00:00:00 UTC+5:30"
-      var parts = timestamp.split(' ');
-      var monthMap = {
-        'January': '1',
-        'February': '2',
-        'March': '3',
-        'April': '4',
-        'May': '5',
-        'June': '6',
-        'July': '7',
-        'August': '8',
-        'September': '9',
-        'October': '10',
-        'November': '11',
-        'December': '12',
-      };
-      var month = monthMap[parts[1]];
-      var day = parts[0];
-      var year = parts[2];
-      return '$year-$month-$day';
-    } else {
-      return '';
-    }
   }
 }

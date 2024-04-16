@@ -1,30 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../ParticipantsFiles/AllEvents.dart';
-import '../ParticipantsFiles/RegisteringForEvent.dart';
-import '../Registrations/LoginPage.dart';
-import '../main.dart';
-import 'AddEventPage.dart';
 import 'ViewGameParticipantsPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase before runApp
 
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     // Wrap your widget with MaterialApp
-    home: YourCallingWidget(),
+    home: YourCallingWidget(
+      coordinatorId: '',
+    ),
   ));
 }
 
 class YourCallingWidget extends StatelessWidget {
+  final String coordinatorId;
+
+  const YourCallingWidget({Key? key, required this.coordinatorId})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Calling Widget'),
+        title: const Text('View Registration Page'),
       ),
       body: Center(
         child: ElevatedButton(
@@ -33,7 +36,9 @@ class YourCallingWidget extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ViewRegistrationPage(),
+                builder: (context) => ViewRegistrationPage(
+                  coordinatorId: coordinatorId,
+                ),
               ),
             );
           },
@@ -45,7 +50,10 @@ class YourCallingWidget extends StatelessWidget {
 }
 
 class ViewRegistrationPage extends StatefulWidget {
-  const ViewRegistrationPage({Key? key}) : super(key: key);
+  final String coordinatorId;
+
+  const ViewRegistrationPage({Key? key, required this.coordinatorId})
+      : super(key: key);
 
   @override
   _ViewRegistrationPageState createState() => _ViewRegistrationPageState();
@@ -61,8 +69,11 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
   }
 
   Future<List<String>> _fetchGamesList() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('events').get();
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('events')
+        .where('coordinatorid',
+            isEqualTo: widget.coordinatorId) // Filter by coordinatorId
+        .get();
     Set<String> gamesSet = Set();
 
     querySnapshot.docs.forEach((doc) {
@@ -73,28 +84,78 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
     return gamesSet.toList();
   }
 
-  final List<String> menuItems = [
-    'Add Event',
-    'All Events',
-    'Main Page',
-    'Home Page',
-    'Login Page',
-    'Event Registration Page',
-  ];
-
   // Method to handle menu item selection
-  void _handleMenuItemSelected(String menuItem) {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('View Registrations'),
+      ),
+      body: FutureBuilder<List<String>>(
+        future: _gamesListFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            List<String> gamesList = snapshot.data!;
+            return ListView.builder(
+              itemCount: gamesList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(gamesList[index]),
+                  onTap: () {
+                    String coid = getcoid().toString();
+                    // Navigate to GameRegistrationsPage when a game is tapped
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewGameParticipantsPage(
+                          gameName: gamesList[index],
+                          coordinatorId: coid,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+Future<String?> getcoid() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('coordinid');
+}
+
+/* void _handleMenuItemSelected(String menuItem, String coid) {
     switch (menuItem) {
       case 'Add Event':
         Navigator.push(
           context as BuildContext,
-          MaterialPageRoute(builder: (context) => AddEventPage()),
+          MaterialPageRoute(
+              builder: (context) => const AddEventPage(
+                    coordinatorId: '',
+                  )),
         );
         break;
       case 'All Events':
         Navigator.push(
           context as BuildContext,
-          MaterialPageRoute(builder: (context) => AllEvents()),
+          MaterialPageRoute(
+              builder: (context) => AllEvents(
+                    coordinatorId: '',
+                  )),
         );
         break;
       case 'Main Page':
@@ -128,70 +189,23 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
         break;
       case 'View Registration Page':
         // Navigate to the event registration page (replace with appropriate route)
-        Navigator.push(context as BuildContext,
-            MaterialPageRoute(builder: (context) => ViewRegistrationPage()));
+        Navigator.push(
+            context as BuildContext,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ViewRegistrationPage(coordinatorId: coid)));
         break;
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('View Registrations'),
-      ),
-      body: FutureBuilder<List<String>>(
-        future: _gamesListFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            List<String> gamesList = snapshot.data!;
-            return ListView.builder(
-              itemCount: gamesList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(gamesList[index]),
-                  onTap: () {
-                    // Navigate to GameRegistrationsPage when a game is tapped
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ViewGameParticipantsPage(
-                          gameName: gamesList[index],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: PopupMenuButton<String>(
-          onSelected: _handleMenuItemSelected,
-          itemBuilder: (BuildContext context) {
-            return menuItems.map((String menuItem) {
-              return PopupMenuItem<String>(
-                value: menuItem,
-                child: Text(menuItem),
-              );
-            }).toList();
-          },
-        ),
-      ),
-    );
-  }
-}
+  }*/
+/*
+  final List<String> menuItems = [
+    'Add Event',
+    'All Events',
+    'Main Page',
+    'Home Page',
+    'Login Page',
+    'Event Registration Page',
+  ];*/
 /*
 
 
@@ -230,3 +244,17 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
         },
       ),
 * */
+/* floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: PopupMenuButton<String>(
+          onSelected: _handleMenuItemSelected,
+          itemBuilder: (BuildContext context) {
+            return menuItems.map((String menuItem) {
+              return PopupMenuItem<String>(
+                value: menuItem,
+                child: Text(menuItem),
+              );
+            }).toList();
+          },
+        ),
+      ),*/

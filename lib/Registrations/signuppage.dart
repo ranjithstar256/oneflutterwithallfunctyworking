@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:oneflutter/ParticipantsFiles/CoordinatorDetailsScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../ParticipantsFiles/AllEvents.dart';
 import 'LoginPage.dart';
 
 void main() async {
@@ -131,7 +131,7 @@ class _UserSignUpPageState extends State<UserSignUpPage> {
       // Navigate to AllEvents after successful sign-up
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AllEvents()),
+        MaterialPageRoute(builder: (context) => CoordinatorDetailsScreen()),
       );
     } else {
       // Show an error message if any field is empty or date is not selected

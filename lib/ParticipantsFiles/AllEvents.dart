@@ -48,13 +48,18 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.green)
             .copyWith(background: const Color(0xFF4C9085)),
       ),
-      home: AllEvents(),
+      home: AllEvents(
+        coordinatorId: '',
+      ),
     );
   }
 }
 
 class AllEvents extends StatelessWidget {
   final Logger logger = Logger();
+  final String coordinatorId;
+
+  AllEvents({required this.coordinatorId});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +68,10 @@ class AllEvents extends StatelessWidget {
         title: const Text('All Events'),
       ),
       body: FutureBuilder(
-        future: FirebaseFirestore.instance.collection('events').get(),
+        future: FirebaseFirestore.instance
+            .collection('events')
+            .where('coordinatorid', isEqualTo: coordinatorId)
+            .get(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Check if user is already logged in by checking a flag in shared preferences
@@ -90,8 +98,6 @@ class AllEvents extends StatelessWidget {
               final hour = int.parse(timeParts[0]);
               final minute = int.parse(timeParts[1]);
               final eventDate = DateTime(year, month, day, hour, minute);
-              return eventDate.isAfter(currentDate);
-
               return eventDate.isAfter(currentDate);
             }).toList();
 

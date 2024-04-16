@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +53,8 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController teamNameController = TextEditingController();
   final TextEditingController memberNamesController = TextEditingController();
+
+  //final TextEditingController eventNameController = TextEditingController();
   List<String> memberNamesList = [];
 
   // Define a variable to hold the selected gender
@@ -76,7 +79,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                 children: [
                   Text(
                     'Event: ${widget.eventName}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
@@ -84,7 +87,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                   ),
                   Text(
                     'Date: ${widget.eventDate}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -92,7 +95,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                   ),
                   Text(
                     'Venue: ${widget.venue}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                       color: Colors.blue,
@@ -147,7 +150,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Gender',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -162,7 +165,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                       });
                     },
                   ),
-                  Text('Male'),
+                  const Text('Male'),
                   Radio<String>(
                     value: 'Female',
                     groupValue: selectedGender,
@@ -172,7 +175,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                       });
                     },
                   ),
-                  Text('Female'),
+                  const Text('Female'),
                   Radio<String>(
                     value: 'Transgender',
                     groupValue: selectedGender,
@@ -182,7 +185,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                       });
                     },
                   ),
-                  Text('Transgender'),
+                  const Text('Transgender'),
                 ],
               ),
             ],
@@ -204,6 +207,12 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
             controller: teamNameController,
             labelText: 'Team Name',
           ),
+          const SizedBox(height: 12),
+          const SizedBox(height: 12),
+          /*   _buildTextField(
+            controller: eventNameController,
+            labelText: 'Event Name',
+          ),*/
           const SizedBox(height: 12),
           MultipleNamesTextField(
             onUpdateMemberNames: (List<String> names) {
@@ -236,8 +245,50 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
   }
 
   void _saveFormData(BuildContext context) async {
-    // Implement saving form data logic
-    print('Saving form data...');
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    String participantName = participantNameController.text.trim();
+    int age = int.tryParse(ageController.text) ?? 0;
+    String collegeName = collegeNameController.text.trim();
+    String gender = genderController.text.trim();
+    String mobile = mobileController.text.trim();
+    String email = emailController.text.trim();
+    String teamName = teamNameController.text.trim();
+    String eventName = widget.eventName;
+    String stcoordinatorId =
+        widget.coordinatorId; // Get coordinatorId from widget
+
+    try {
+      await firestore
+          .collection('events')
+          .doc(eventName)
+          .collection('participants')
+          .add({
+        'participantName': participantName,
+        'age': age,
+        'collegeName': collegeName,
+        'gender': gender,
+        'mobile': mobile,
+        'email': email,
+        'teamName': teamName,
+        'coordinatorid': stcoordinatorId, // Save coordinatorId in Firestore
+        'memberNames': memberNamesList.join(', '),
+      });
+
+      // Show success message and clear form fields
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Registration data saved successfully'),
+        duration: Duration(seconds: 2),
+      ));
+      // Clear form fields
+      // ...
+    } catch (error) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error saving registration data: $error'),
+        duration: const Duration(seconds: 2),
+      ));
+    }
   }
 }
 

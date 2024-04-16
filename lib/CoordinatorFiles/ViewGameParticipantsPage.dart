@@ -1,18 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewGameParticipantsPage extends StatelessWidget {
   final String gameName;
+  final String coordinatorId; // Add coordinatorId parameter
 
-  const ViewGameParticipantsPage({Key? key, required this.gameName})
-      : super(key: key);
+  const ViewGameParticipantsPage({
+    Key? key,
+    required this.gameName,
+    required this.coordinatorId,
+  }) : super(key: key);
 
   Future<List<Map<String, dynamic>>> fetchRegistrationsForGame(
-      String gameName) async {
+      String gameName, String prcoordinatorId) async {
+    String cco = getcoid().toString();
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('events')
-        .doc(gameName)
+        .doc('Chess')
         .collection('participants')
+        .where('coordinatorid', isEqualTo: cco) // Filter by coordinatorId
         .get();
 
     List<Map<String, dynamic>> participants = [];
@@ -30,7 +37,8 @@ class ViewGameParticipantsPage extends StatelessWidget {
         title: Text('Registrations for $gameName'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchRegistrationsForGame(gameName),
+        future: fetchRegistrationsForGame(gameName, coordinatorId),
+        // Pass coordinatorId
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -73,4 +81,9 @@ class ViewGameParticipantsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<String?> getcoid() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('coordinid');
 }
