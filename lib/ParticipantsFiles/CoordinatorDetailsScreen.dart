@@ -100,8 +100,8 @@ class CoordinatorDetailsScreen extends StatelessWidget {
                           const SizedBox(height: 10),
                           Text('Event Name: ${document['eventName']}',
                               style: const TextStyle(fontSize: 16)),
-                          Text('Co Ordinator Id: ${document['collegeId']}',
-                              style: const TextStyle(fontSize: 16)),
+                          /* Text('Co Ordinator Id: ${document['collegeId']}',
+                              style: const TextStyle(fontSize: 16)),*/
                           const SizedBox(height: 5),
                           Text('Venue: ${document['venue']}',
                               style: const TextStyle(fontSize: 16)),

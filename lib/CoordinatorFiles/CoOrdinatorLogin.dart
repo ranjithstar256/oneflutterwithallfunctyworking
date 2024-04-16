@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,10 +34,7 @@ class MyApp extends StatelessWidget {
           }
           // If user is already logged in, navigate to main content
           if (snapshot.data == true) {
-            String coi = getcoid() as String;
-            return CoordinatorActionScreen(
-              coordinatorId: coi,
-            );
+            return CoordinatorActionScreen();
           } else {
             // Otherwise, navigate to login page
             return CoOrdinatorLogin();
@@ -76,45 +74,6 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
         collegePic = File(picked.path);
       });
     }
-  }
-
-  void _showDialog(BuildContext context, String prcoordinatorid) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Choose an action'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                setLoggedIn(true);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ViewRegistrationPage(coordinatorId: prcoordinatorid),
-                  ),
-                );
-              },
-              child: const Text('View Registration'),
-            ),
-            TextButton(
-              onPressed: () {
-                setLoggedIn(true);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddEventPage(coordinatorId: prcoordinatorid),
-                  ),
-                );
-              },
-              child: const Text('Add Event'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -202,7 +161,6 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
         await _firestore.collection('coordinators').add({
           'collegeName': _collegeNameController.text.trim(),
           'coordinatorid': _coordinatoridController.text.trim(),
-          'collegeId': _coordinatoridController.text.trim(),
           'coordinatorName': _coordinatorNameController.text.trim(),
           'venue': _coordinatorvenueController.text.trim(),
           'fromDate': formattedFromDate,
@@ -210,7 +168,9 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
           'eventName': _coordinatorEventNameController.text.trim(),
           'collegePicUrl': downloadURL,
         });
-        setcoid(_coordinatoridController.text.trim());
+
+        // Save coordinator ID to SharedPreferences
+        await setcoid(coordinatorid);
 
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -231,7 +191,6 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
           collegePic = null;
         });
         setLoggedIn(true);
-        _showDialog(context, coordinatorid);
       } catch (error) {
         // Show error message if saving fails
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -352,62 +311,154 @@ Future<void> setcoid(String value) async {
   await prefs.setString('coordinid', value);
 }
 
-Future<String?> getcoid() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('coordinid');
-}
-
 Future<bool> checkIfLoggedIn() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getBool('coordinloggedin') ?? false;
 }
 
+Future<String?> getcoid() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('coordinid');
+}
+
 class CoordinatorActionScreen extends StatelessWidget {
-  final String coordinatorId;
-
-  const CoordinatorActionScreen({Key? key, required this.coordinatorId})
-      : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Choose an action'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
+    return FutureBuilder<String?>(
+      future: getcoid(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+        if (snapshot.hasData) {
+          String coordinatorId = snapshot.data.toString();
+          Fluttertoast.showToast(
+            msg: coordinatorId ?? 'No coordinator ID found',
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+          );
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Choose an action'),
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      setLoggedIn(true);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewRegistrationPage(
+                              coordinatorId: coordinatorId),
+                        ),
+                      );
+                    },
+                    child: const Text('View Registration'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setLoggedIn(true);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddEventPage(coordinatorId: coordinatorId),
+                        ),
+                      );
+                    },
+                    child: const Text('Add Event'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return const Text('No coordinator ID found');
+        }
+      },
+    );
+  }
+}
+
+/* void _showDialog(BuildContext context, String prcoordinatorid) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose an action'),
+          actions: <Widget>[
+            TextButton(
               onPressed: () {
-                String cid = getcoid().toString();
                 setLoggedIn(true);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        ViewRegistrationPage(coordinatorId: cid),
+                        ViewRegistrationPage(coordinatorId: prcoordinatorid),
                   ),
                 );
               },
               child: const Text('View Registration'),
             ),
-            ElevatedButton(
+            TextButton(
               onPressed: () {
-                String cid = getcoid().toString();
                 setLoggedIn(true);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AddEventPage(coordinatorId: cid),
+                    builder: (context) =>
+                        AddEventPage(coordinatorId: prcoordinatorid),
                   ),
                 );
               },
               child: const Text('Add Event'),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
-  }
-}
+  }*/
+
+/* void _showDialog(BuildContext context, String prcoordinatorid) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choose an action'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                setLoggedIn(true);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ViewRegistrationPage(coordinatorId: prcoordinatorid),
+                  ),
+                );
+              },
+              child: const Text('View Registration'),
+            ),
+            TextButton(
+              onPressed: () {
+                setLoggedIn(true);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddEventPage(coordinatorId: prcoordinatorid),
+                  ),
+                );
+              },
+              child: const Text('Add Event'),
+            ),
+          ],
+        );
+      },
+    );
+  }*/

@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:oneflutter/ParticipantsFiles/CoordinatorDetailsScreen.dart';
 import 'package:oneflutter/Registrations/signuppage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../dataModel/UserData.dart';
 import 'ForgotPasswordPage.dart';
 
 void main() async {
@@ -38,7 +41,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatefulWidget {
+/*class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
@@ -131,10 +134,10 @@ class _LoginPageState extends State<LoginPage> {
                 setLoggedIn(true);
 
                 // Navigate to next page
-                /* Navigator.push(
+                */ /* Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AllEvents()),
-                );*/
+                );*/ /*
               },
               child: const Text('Sign In'),
             ),
@@ -190,14 +193,13 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-}
+}*/
 
 Future<void> setLoggedIn(bool value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool('partiloggedin', value);
 }
 
-/*
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -226,13 +228,15 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20), // Add some space at the top
+            SizedBox(height: 20),
+            // Add some space at the top
             const Icon(
               Icons.lock,
               size: 60, // Adjust icon size as needed
               color: Colors.blue, // Change icon color
             ),
-            const SizedBox(height: 10), // Add some space between icon and text
+            const SizedBox(height: 10),
+            // Add some space between icon and text
             const Text(
               'Login to your account',
               style: TextStyle(
@@ -240,8 +244,8 @@ class _LoginPageState extends State<LoginPage> {
                 fontWeight: FontWeight.bold, // Apply bold font weight
               ),
             ),
-            const SizedBox(
-                height: 20), // Add some space between text and email field
+            const SizedBox(height: 20),
+            // Add some space between text and email field
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextFormField(
@@ -252,9 +256,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            const SizedBox(
-                height:
-                    10), // Add some space between email field and password field
+            const SizedBox(height: 10),
+            // Add some space between email field and password field
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextFormField(
@@ -266,9 +269,8 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
               ),
             ),
-            const SizedBox(
-                height:
-                    20), // Add some space between password field and continue button
+            const SizedBox(height: 20),
+            // Add some space between password field and continue button
             ElevatedButton(
               onPressed: () async {
                 String enteredEmail = _emailController.text;
@@ -276,14 +278,15 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Assuming you have a method to retrieve user data from Firestore based on email
                 UserData? userData =
-                    await getUserDataFromFirestore(enteredEmail);
+                    await getUserDataFromFirestore(enteredEmail, context);
 
                 if (userData != null && userData.password == enteredPassword) {
                   // Successful login, navigate to home page
                   setLoggedIn(true);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => AllEvents()),
+                    MaterialPageRoute(
+                        builder: (context) => const CoordinatorDetailsScreen()),
                   );
                 } else {
                   // Invalid credentials, show error message
@@ -296,9 +299,8 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text('Sign In'),
             ),
-            const SizedBox(
-                height:
-                    10), // Add some space between continue button and forgot password text
+            const SizedBox(height: 10),
+            // Add some space between continue button and forgot password text
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -318,17 +320,16 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                    width:
-                        20), // Add some space between forgot password text and edge of screen
+                const SizedBox(width: 20),
+                // Add some space between forgot password text and edge of screen
               ],
             ),
-            const SizedBox(
-                height:
-                    20), // Add some space between forgot password text and divider
-            const Divider(), // Horizontal line
-            const SizedBox(
-                height: 20), // Add some space between divider and sign-up text
+            const SizedBox(height: 20),
+            // Add some space between forgot password text and divider
+            const Divider(),
+            // Horizontal line
+            const SizedBox(height: 20),
+            // Add some space between divider and sign-up text
             GestureDetector(
               onTap: () {
                 // Navigate back to the sign-up page
@@ -357,7 +358,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-Future<UserData?> getUserDataFromFirestore(String email) async {
+Future<UserData?> getUserDataFromFirestore(
+    String email, BuildContext context) async {
   try {
     // Get Firestore instance
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -382,21 +384,29 @@ Future<UserData?> getUserDataFromFirestore(String email) async {
         );
       } else {
         // Handle case where userData is null
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Please enter details'),
+          backgroundColor: Colors.green,
+        ));
         return null;
       }
     } else {
       // No user found with the entered email
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Invalid credential'),
+        backgroundColor: Colors.green,
+      ));
+      return null;
       return null;
     }
   } catch (error) {
     // Handle any errors that occur during data retrieval
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Something went wrong!'),
+      backgroundColor: Colors.green,
+    ));
+    return null;
     print('Error retrieving user data: $error');
     return null;
   }
 }
-
-Future<void> setLoggedIn(bool value) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('partiloggedin', value);
-}
-*/

@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewGameParticipantsPage extends StatelessWidget {
   final String gameName;
-  final String coordinatorId; // Add coordinatorId parameter
+  final String coordinatorId;
 
   const ViewGameParticipantsPage({
     Key? key,
@@ -13,13 +12,12 @@ class ViewGameParticipantsPage extends StatelessWidget {
   }) : super(key: key);
 
   Future<List<Map<String, dynamic>>> fetchRegistrationsForGame(
-      String gameName, String prcoordinatorId) async {
-    String cco = getcoid().toString();
+      String gameName, String coordinatorId) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('events')
-        .doc('Chess')
+        .doc(gameName)
         .collection('participants')
-        .where('coordinatorid', isEqualTo: cco) // Filter by coordinatorId
+        .where('coordinatorid', isEqualTo: coordinatorId)
         .get();
 
     List<Map<String, dynamic>> participants = [];
@@ -38,7 +36,6 @@ class ViewGameParticipantsPage extends StatelessWidget {
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchRegistrationsForGame(gameName, coordinatorId),
-        // Pass coordinatorId
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -53,23 +50,26 @@ class ViewGameParticipantsPage extends StatelessWidget {
             return ListView.builder(
               itemCount: participants.length,
               itemBuilder: (context, index) {
+                Map<String, dynamic> participant = participants[index];
                 return Card(
                   margin: EdgeInsets.all(8),
                   child: ListTile(
                     title: Text(
-                        'Participant Name: ${participants[index]['participantName']}'),
+                        'Participant Name: ${participant['participantName']}'),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Age: ${participants[index]['age']}'),
-                        Text(
-                            'College Name: ${participants[index]['collegeName']}'),
-                        Text('Email: ${participants[index]['email']}'),
-                        Text('Gender: ${participants[index]['gender']}'),
-                        Text('Mobile: ${participants[index]['mobile']}'),
-                        Text(
-                            'Member Names: ${participants[index]['memberNames']}'),
-                        Text('Team Name: ${participants[index]['teamName']}'),
+                        Text('Age: ${participant['age']}'),
+                        Text('College Name: ${participant['collegeName']}'),
+                        Text('Email: ${participant['email']}'),
+                        Text('Gender: ${participant['gender']}'),
+                        Text('Mobile: ${participant['mobile']}'),
+                        if (participant.containsKey('teamName') &&
+                            participant['teamName'].isNotEmpty)
+                          Text('Team Name: ${participant['teamName']}'),
+                        if (participant.containsKey('memberNames') &&
+                            participant['memberNames'].isNotEmpty)
+                          Text('Member Names: ${participant['memberNames']}'),
                       ],
                     ),
                   ),
@@ -81,9 +81,4 @@ class ViewGameParticipantsPage extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<String?> getcoid() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('coordinid');
 }

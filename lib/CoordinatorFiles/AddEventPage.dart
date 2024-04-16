@@ -1,30 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:oneflutter/ParticipantsFiles/AllEvents.dart';
-
-import '../ParticipantsFiles/RegisteringForEvent.dart';
-import '../Registrations/LoginPage.dart';
-import '../main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Set status bar and action bar colors
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Colors.green[200], // Set status bar color to light green
-      systemNavigationBarColor:
-          Colors.green[900], // Set navigation bar color to dark green
-      statusBarIconBrightness:
-          Brightness.dark, // Set status bar icons to dark color
-      systemNavigationBarIconBrightness:
-          Brightness.light, // Set navigation bar icons to light color
-    ),
-  );
   await Firebase.initializeApp();
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: AddEventPage(
       coordinatorId: '',
     ),
@@ -34,23 +16,13 @@ void main() async {
 class AddEventPage extends StatefulWidget {
   final String coordinatorId;
 
-  const AddEventPage({required this.coordinatorId});
+  const AddEventPage({super.key, required this.coordinatorId});
 
   @override
   _AddEventPageState createState() => _AddEventPageState();
 }
 
 class _AddEventPageState extends State<AddEventPage> {
-  final List<String> menuItems = [
-    'Add Event',
-    'All Events',
-    'Main Page',
-    'Home Page',
-    'Login Page',
-    'Event Registration Page',
-    'View Registration Page',
-  ];
-
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -103,44 +75,57 @@ class _AddEventPageState extends State<AddEventPage> {
   void _saveEventData() async {
     if (_selectedDate != null &&
         _selectedTime != null &&
-        _selectedGame.isNotEmpty) {
+        _selectedGame.isNotEmpty &&
+        _venueController.text.isNotEmpty) {
       String eventDateTime =
           '${_selectedDate!.year}-${_selectedDate!.month}-${_selectedDate!.day} ${_selectedTime!.hour}:${_selectedTime!.minute}';
 
-      // Add event data to Firestore
-      await firestore.collection('events').add({
-        'eventDate': eventDateTime,
-        'venue': _venueController.text,
-        'participantType': _participantType,
-        'gameType': _gameType,
-        'selectedGame': _selectedGame, // Include selected game
-        'teamSize': _teamSize,
-        'coordinatorid': widget.coordinatorId, // Use coordinatorId from widget
-        'collegeId': widget.coordinatorId, // Use coordinatorId from widget
-      });
+      try {
+        // Add event data to Firestore
+        await firestore.collection('events').add({
+          'eventDate': eventDateTime,
+          'venue': _venueController.text,
+          'participantType': _participantType,
+          'gameType': _gameType,
+          'selectedGame': _selectedGame,
+          // Include selected game
+          'teamSize': _teamSize,
+          'coordinatorid': widget.coordinatorId,
+          // Use coordinatorId from widget
+          'collegeId': widget.coordinatorId,
+          // Use coordinatorId from widget
+        });
 
-      // Clear form fields after saving
-      _venueController.clear();
-      setState(() {
-        _teamSize = 1;
-        _participantType = 'Both';
-        _gameType = 'Individual';
-        _selectedDate = null;
-        _selectedTime = null;
-        _selectedGame = ''; // Clear selected game
-      });
+        // Clear form fields after saving
+        _venueController.clear();
+        setState(() {
+          _teamSize = 1;
+          _participantType = 'Both';
+          _gameType = 'Individual';
+          _selectedDate = null;
+          _selectedTime = null;
+          _selectedGame = ''; // Clear selected game
+        });
 
-      // Show a message indicating successful save
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Event data saved successfully!'),
-        ),
-      );
+        // Show a message indicating successful save
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Event data saved successfully!'),
+          ),
+        );
+      } catch (e) {
+        // Show an error message if saving fails
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save event: $e'),
+          ),
+        );
+      }
     } else {
-      // Show an error message if date, time, or game is not selected
+      // Show an error message if date, time, game, or venue is not selected
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select event date, time, and game.'),
+          content: Text('Please select event date, time, game, and venue.'),
         ),
       );
     }
@@ -210,64 +195,6 @@ class _AddEventPageState extends State<AddEventPage> {
         );
       },
     );
-  }
-
-  void _handleMenuItemSelected(String menuItem) {
-    switch (menuItem) {
-      case 'Add Event':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  AddEventPage(coordinatorId: widget.coordinatorId)),
-        );
-        break;
-      case 'All Events':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => AllEvents(
-                    coordinatorId: widget.coordinatorId,
-                  )),
-        );
-        break;
-      case 'Main Page':
-        // Navigate to the main page (replace with appropriate route)
-        break;
-      case 'Home Page':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-        // Navigate to the home page (replace with appropriate route)
-        break;
-      case 'Login Page':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
-        break;
-      case 'Event Registration Page':
-        // Navigate to the event registration page (replace with appropriate route)
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => EventRegistrationPage(
-                  eventName: "VollyBall",
-                  eventDate: "04-04-2024",
-                  venue: "SDM College",
-                  isTeamGame: true,
-                  coordinatorId: widget.coordinatorId)),
-        );
-        break;
-      case 'View Registration Page':
-        // Navigate to the event registration page (replace with appropriate route)
-        /*Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ViewRegistrationPage()),
-        );*/
-        break;
-    }
   }
 
   @override
@@ -413,22 +340,13 @@ class _AddEventPageState extends State<AddEventPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: PopupMenuButton<String>(
-          onSelected: _handleMenuItemSelected,
-          itemBuilder: (BuildContext context) {
-            return menuItems.map((String menuItem) {
-              return PopupMenuItem<String>(
-                value: menuItem,
-                child: Text(menuItem),
-              );
-            }).toList();
-          },
-        ),
-      ),
     );
   }
+}
+
+Future<String?> getcoid() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('coordinid');
 }
 
 /*

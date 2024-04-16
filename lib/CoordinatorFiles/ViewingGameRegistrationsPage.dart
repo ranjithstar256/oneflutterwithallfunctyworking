@@ -65,26 +65,28 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
   @override
   void initState() {
     super.initState();
-    _gamesListFuture = _fetchGamesList();
+    _gamesListFuture = _fetchGamesList(widget.coordinatorId);
   }
 
-  Future<List<String>> _fetchGamesList() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('events')
-        .where('coordinatorid',
-            isEqualTo: widget.coordinatorId) // Filter by coordinatorId
-        .get();
-    Set<String> gamesSet = Set();
+  Future<List<String>> _fetchGamesList(String coordinatorId) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('events')
+          .where('coordinatorid', isEqualTo: coordinatorId)
+          .get();
+      Set<String> gamesSet = Set();
 
-    querySnapshot.docs.forEach((doc) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      gamesSet.add(data['selectedGame']);
-    });
+      querySnapshot.docs.forEach((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        gamesSet.add(data['selectedGame']);
+      });
 
-    return gamesSet.toList();
+      return gamesSet.toList();
+    } catch (e) {
+      print('Error fetching games list: $e');
+      return [];
+    }
   }
-
-  // Method to handle menu item selection
 
   @override
   Widget build(BuildContext context) {
@@ -105,26 +107,42 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
             );
           } else {
             List<String> gamesList = snapshot.data!;
-            return ListView.builder(
-              itemCount: gamesList.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(gamesList[index]),
-                  onTap: () {
-                    String coid = getcoid().toString();
-                    // Navigate to GameRegistrationsPage when a game is tapped
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ViewGameParticipantsPage(
-                          gameName: gamesList[index],
-                          coordinatorId: coid,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    widget.coordinatorId,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: gamesList.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(gamesList[index]),
+                        onTap: () {
+                          // Navigate to GameRegistrationsPage when a game is tapped
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ViewGameParticipantsPage(
+                                gameName: gamesList[index],
+                                coordinatorId: widget.coordinatorId,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           }
         },
@@ -136,6 +154,11 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
 Future<String?> getcoid() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.getString('coordinid');
+}
+
+Future<void> setcoid(String value) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('coordinid', value);
 }
 
 /* void _handleMenuItemSelected(String menuItem, String coid) {

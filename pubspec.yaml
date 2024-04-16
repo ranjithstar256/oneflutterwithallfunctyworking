@@ -25,6 +25,7 @@ dependencies:
   firebase_storage: ^11.7.1
   font_awesome_flutter: ^10.7.0
   google_fonts: ^6.2.1
+  fluttertoast: ^8.2.5
 
 flutter_native_splash:
   color: "42a5f5"
