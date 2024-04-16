@@ -74,8 +74,6 @@ class AllEvents extends StatelessWidget {
             .get(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Check if user is already logged in by checking a flag in shared preferences
-            setLoggedIn(true);
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -106,7 +104,14 @@ class AllEvents extends StatelessWidget {
               itemBuilder: (context, index) {
                 var data = upcomingEvents[index].data() as Map<String, dynamic>;
 
-                logger.i('Event Date: ${data['eventDate']}');
+                // Validate teamSize to ensure it's a positive integer
+                int? teamSize;
+                if (data['teamSize'] is int && data['teamSize'] > 0) {
+                  teamSize = data['teamSize'];
+                } else {
+                  logger.e('Invalid team size: ${data['teamSize']}');
+                  // Handle invalid team size, e.g., show an error message
+                }
 
                 return Card(
                   elevation: 4,
@@ -127,24 +132,35 @@ class AllEvents extends StatelessWidget {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => EventRegistrationPage(
-                                  eventName:
-                                      data['selectedGame'] ?? 'def ev name',
-                                  eventDate: data['eventDate'] ?? 'def ev date',
-                                  venue: data['venue'] ?? 'def ev venue',
-                                  isTeamGame: data['gameType'] == 'Team',
-                                  coordinatorId:
-                                      data['coordinatorid'] ?? 'sdm2566',
+                            if (teamSize != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EventRegistrationPage(
+                                    eventName:
+                                        data['selectedGame'] ?? 'def ev name',
+                                    eventDate:
+                                        data['eventDate'] ?? 'def ev date',
+                                    venue: data['venue'] ?? 'def ev venue',
+                                    isTeamGame: data['gameType'] == 'Team',
+                                    coordinatorId:
+                                        data['coordinatorid'] ?? 'sdm2566',
+                                    participantType:
+                                        data['participantType'] ?? 'Individual',
+                                    teamsize: data['teamSize'] ?? 5,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            } else {
+                              // Show an error message if teamSize is invalid
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Invalid team size.'),
+                                ),
+                              );
+                            }
                           },
-                          child: const Text(
-                            'Register for Event',
-                          ),
+                          child: const Text('Register for Event'),
                         ),
                       ],
                     ),

@@ -191,6 +191,11 @@ class _CoOrdinatorLoginPageState extends State<CoOrdinatorLogin> {
           collegePic = null;
         });
         setLoggedIn(true);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CoordinatorActionScreen()),
+        );
       } catch (error) {
         // Show error message if saving fails
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

@@ -30,6 +30,8 @@ class EventRegistrationPage extends StatefulWidget {
   final String venue;
   bool isTeamGame;
   final String coordinatorId;
+  final String participantType;
+  final int teamsize;
 
   EventRegistrationPage({
     required this.eventName,
@@ -37,6 +39,8 @@ class EventRegistrationPage extends StatefulWidget {
     required this.venue,
     required this.isTeamGame,
     required this.coordinatorId,
+    required this.participantType,
+    required this.teamsize,
   });
 
   @override
@@ -147,51 +151,20 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
           ),
           Wrap(
             direction: Axis.horizontal,
-            spacing: 8.0, // Space between each child
-            runSpacing: 4.0, // Space between each run
+            // Changed to horizontal to allow wrapping
+            spacing: 8.0,
+            // Reduced spacing between children
+            runSpacing: 4.0,
+            // Reduced spacing between runs
             children: [
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Male',
-                    groupValue: selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedGender = value!;
-                      });
-                    },
-                  ),
-                  const Text('Male'),
-                ],
-              ),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Female',
-                    groupValue: selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedGender = value!;
-                      });
-                    },
-                  ),
-                  const Text('Female'),
-                ],
-              ),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'Transgender',
-                    groupValue: selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedGender = value!;
-                      });
-                    },
-                  ),
-                  const Text('Transgender'),
-                ],
-              ),
+              if (widget.participantType == 'Both' ||
+                  widget.participantType == 'Male')
+                _buildGenderRadioButton('Male'),
+              if (widget.participantType == 'Both' ||
+                  widget.participantType == 'Female')
+                _buildGenderRadioButton('Female'),
+              if (widget.participantType == 'Both')
+                _buildGenderRadioButton('Transgender'),
             ],
           ),
           const SizedBox(height: 12),
@@ -224,9 +197,27 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
               onUpdateMemberNames: (List<String> names) {
                 memberNamesList = names;
               },
+              teamsize: widget.teamsize,
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGenderRadioButton(String gender) {
+    return Row(
+      children: [
+        Radio<String>(
+          value: gender,
+          groupValue: selectedGender,
+          onChanged: (value) {
+            setState(() {
+              selectedGender = value!;
+            });
+          },
+        ),
+        Text(gender),
+      ],
     );
   }
 
@@ -300,8 +291,12 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
 
 class MultipleNamesTextField extends StatefulWidget {
   final Function(List<String>) onUpdateMemberNames;
+  final int teamsize;
 
-  MultipleNamesTextField({required this.onUpdateMemberNames});
+  MultipleNamesTextField({
+    required this.onUpdateMemberNames,
+    required this.teamsize,
+  });
 
   @override
   _MultipleNamesTextFieldState createState() => _MultipleNamesTextFieldState();
@@ -328,22 +323,36 @@ class _MultipleNamesTextFieldState extends State<MultipleNamesTextField> {
             suffixIcon: IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
-                setState(() {
-                  memberNames.add(memberNamesController.text);
-                  memberNamesController.clear();
-                  widget.onUpdateMemberNames(
-                      memberNames); // Update member names list
-                });
+                if (memberNames.length < widget.teamsize) {
+                  setState(() {
+                    memberNames.add(memberNamesController.text);
+                    memberNamesController.clear();
+                    widget.onUpdateMemberNames(memberNames);
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Team size limit reached'),
+                    ),
+                  );
+                }
               },
             ),
           ),
           onSubmitted: (value) {
-            setState(() {
-              memberNames.add(value);
-              memberNamesController.clear();
-              widget
-                  .onUpdateMemberNames(memberNames); // Update member names list
-            });
+            if (memberNames.length < widget.teamsize) {
+              setState(() {
+                memberNames.add(value);
+                memberNamesController.clear();
+                widget.onUpdateMemberNames(memberNames);
+              });
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Team size limit reached'),
+                ),
+              );
+            }
           },
         ),
         const SizedBox(height: 16),
