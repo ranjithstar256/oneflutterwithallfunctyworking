@@ -93,6 +93,8 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('View Registrations'),
+        backgroundColor: const Color(0xFF4C9085), // Custom app bar color
+        elevation: 4, // Add elevation to the AppBar
       ),
       body: FutureBuilder<List<String>>(
         future: _gamesListFuture,
@@ -107,42 +109,57 @@ class _ViewRegistrationPageState extends State<ViewRegistrationPage> {
             );
           } else {
             List<String> gamesList = snapshot.data!;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     widget.coordinatorId,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: Colors.blue, // Custom text color
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: gamesList.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(gamesList[index]),
-                        onTap: () {
-                          // Navigate to GameRegistrationsPage when a game is tapped
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ViewGameParticipantsPage(
-                                gameName: gamesList[index],
-                                coordinatorId: widget.coordinatorId,
+                  const SizedBox(height: 16), // Add spacing
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: gamesList.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            leading:
+                                const Icon(Icons.gamepad, color: Colors.blue),
+                            // Add an icon
+                            title: Text(
+                              gamesList[index],
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.black, // Custom text color
                               ),
                             ),
-                          );
-                        },
-                      );
-                    },
+                            onTap: () {
+                              // Navigate to GameRegistrationsPage when a game is tapped
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ViewGameParticipantsPage(
+                                    gameName: gamesList[index],
+                                    coordinatorId: widget.coordinatorId,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           }
         },

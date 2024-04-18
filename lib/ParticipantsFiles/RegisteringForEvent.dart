@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +64,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
 
   // Define a variable to hold the selected gender
   String selectedGender = '';
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +76,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -84,7 +86,7 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
                   Text(
                     'Event: ${widget.eventName}',
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
                     ),
@@ -110,17 +112,36 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
             ),
             _buildIndividualRegistrationForm(),
             Center(
-              child: ElevatedButton(
-                onPressed: () {
+              child: GestureDetector(
+                onTap: () {
                   _saveFormData(context);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      const Color(0xFF4C9085), // Custom button color
-                  minimumSize: const Size(double.infinity, 48),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: MediaQuery.of(context).size.height /
+                      13, // Adjust height as needed
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15.0),
+                    color: const Color(0xFF21899C),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4C2E84).withOpacity(0.2),
+                        offset: const Offset(0, 15.0),
+                        blurRadius: 60.0,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'Submit',
+                    style: GoogleFonts.inter(
+                      fontSize: 16.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                child:
-                    const Text('Submit', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -130,76 +151,205 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
   }
 
   Widget _buildIndividualRegistrationForm() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTextField(
-            controller: participantNameController,
-            labelText: 'Participant Name',
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: ageController,
-            labelText: 'Age',
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Gender',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Wrap(
-            direction: Axis.horizontal,
-            // Changed to horizontal to allow wrapping
-            spacing: 8.0,
-            // Reduced spacing between children
-            runSpacing: 4.0,
-            // Reduced spacing between runs
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(28.0), // Adjust padding as needed
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.participantType == 'Both' ||
-                  widget.participantType == 'Male')
-                _buildGenderRadioButton('Male'),
-              if (widget.participantType == 'Both' ||
-                  widget.participantType == 'Female')
-                _buildGenderRadioButton('Female'),
-              if (widget.participantType == 'Both')
-                _buildGenderRadioButton('Transgender'),
+              _buildTextField(
+                controller: participantNameController,
+                labelText: 'Participant Name',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter participant name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: ageController,
+                labelText: 'Age',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter age';
+                  }
+                  // Check if the value is a number and exactly two digits
+                  if (!RegExp(r'^\d{2}$').hasMatch(value)) {
+                    return 'Age must be a 2-digit number';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Gender',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Wrap(
+                direction: Axis.horizontal,
+                // Changed to horizontal to allow wrapping
+                spacing: 8.0,
+                // Reduced spacing between children
+                runSpacing: 4.0,
+                // Reduced spacing between runs
+                children: [
+                  if (widget.participantType == 'Both' ||
+                      widget.participantType == 'Male')
+                    _buildGenderRadioButton('Male'),
+                  if (widget.participantType == 'Both' ||
+                      widget.participantType == 'Female')
+                    _buildGenderRadioButton('Female'),
+                  if (widget.participantType == 'Both')
+                    _buildGenderRadioButton('Transgender'),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: collegeNameController,
+                labelText: 'College Name',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter college name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: mobileController,
+                labelText: 'Mobile',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter mobile number';
+                  } else if (value.length != 10) {
+                    return 'Mobile number must be 10 digits';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                controller: emailController,
+                labelText: 'Email',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter email';
+                  } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+              if (widget.isTeamGame) const Text('Team Event Data'),
+              const SizedBox(height: 12),
+              if (widget.isTeamGame)
+                _buildTextField(
+                  controller: teamNameController,
+                  labelText: 'Team Name',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter team name';
+                    }
+                    return null;
+                  },
+                ),
+              const SizedBox(height: 12),
+              if (widget.isTeamGame)
+                MultipleNamesTextField(
+                  key: ValueKey(memberNamesList.length),
+                  onUpdateMemberNames: (List<String> names) {
+                    memberNamesList = names;
+                  },
+                  teamsize: widget.teamsize,
+                  onClearMemberNames: () {
+                    // This callback will be called to clear the memberNames list
+                    setState(() {
+                      memberNamesList.clear();
+                    });
+                  },
+                ),
             ],
           ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: collegeNameController,
-            labelText: 'College Name',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    String? Function(String?)? validator,
+  }) {
+    return SizedBox(
+      height:
+          MediaQuery.of(context).size.height / 12, // Adjust height as needed
+      child: TextFormField(
+        controller: controller,
+        style: GoogleFonts.inter(
+          fontSize: 18.0,
+          color: const Color(0xFF151624),
+        ),
+        maxLines: 1,
+        keyboardType: TextInputType.text,
+        // Adjust keyboard type as needed
+        cursorColor: const Color(0xFF151624),
+        decoration: InputDecoration(
+          hintText: labelText,
+          hintStyle: GoogleFonts.inter(
+            fontSize: 16.0,
+            color: const Color(0xFF151624).withOpacity(0.5),
           ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: mobileController,
-            labelText: 'Mobile',
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            controller: emailController,
-            labelText: 'Email',
-          ),
-          const SizedBox(height: 24),
-          const SizedBox(height: 12),
-          if (widget.isTeamGame) const Text('Team Event Data'),
-          const SizedBox(height: 12),
-          if (widget.isTeamGame)
-            _buildTextField(
-              controller: teamNameController,
-              labelText: 'Team Name',
+          fillColor: controller.text.isNotEmpty
+              ? Colors.transparent
+              : const Color.fromRGBO(248, 247, 251, 1),
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(40),
+            borderSide: BorderSide(
+              color: controller.text.isEmpty
+                  ? Colors.transparent
+                  : const Color.fromRGBO(44, 185, 176, 1),
             ),
-          const SizedBox(height: 12),
-          if (widget.isTeamGame)
-            MultipleNamesTextField(
-              onUpdateMemberNames: (List<String> names) {
-                memberNamesList = names;
-              },
-              teamsize: widget.teamsize,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(40),
+            borderSide: const BorderSide(
+              color: Color.fromRGBO(44, 185, 176, 1),
             ),
-        ],
+          ),
+          prefixIcon: Icon(
+            Icons.mail_outline_rounded, // Adjust icon as needed
+            color: controller.text.isEmpty
+                ? const Color(0xFF151624).withOpacity(0.5)
+                : const Color.fromRGBO(44, 185, 176, 1),
+            size: 16,
+          ),
+          suffix: Container(
+            alignment: Alignment.center,
+            width: 24.0,
+            height: 24.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100.0),
+              color: const Color.fromRGBO(44, 185, 176, 1),
+            ),
+            child: controller.text.isEmpty
+                ? const Center()
+                : const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 13,
+                  ),
+          ),
+        ),
+        validator: validator,
       ),
     );
   }
@@ -221,70 +371,65 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String labelText,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey), // Add border decoration
-        borderRadius: BorderRadius.circular(8.0), // Add border radius
-      ),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-          labelText: labelText,
-          border: InputBorder.none, // Remove default border
-        ),
-      ),
-    );
-  }
-
   void _saveFormData(BuildContext context) async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    if (_formKey.currentState!.validate()) {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    String participantName = participantNameController.text.trim();
-    int age = int.tryParse(ageController.text) ?? 0;
-    String collegeName = collegeNameController.text.trim();
+      String participantName = participantNameController.text.trim();
+      int age = int.tryParse(ageController.text) ?? 0;
+      String collegeName = collegeNameController.text.trim();
 
-    String mobile = mobileController.text.trim();
-    String email = emailController.text.trim();
-    String teamName = teamNameController.text.trim();
-    String eventName = widget.eventName;
-    String stcoordinatorId =
-        widget.coordinatorId; // Get coordinatorId from widget
+      String mobile = mobileController.text.trim();
+      String email = emailController.text.trim();
+      String teamName = teamNameController.text.trim();
+      String eventName = widget.eventName;
+      String stcoordinatorId =
+          widget.coordinatorId; // Get coordinatorId from widget
 
-    try {
-      await firestore
-          .collection('events')
-          .doc(eventName)
-          .collection('participants')
-          .add({
-        'participantName': participantName,
-        'age': age,
-        'collegeName': collegeName,
-        'gender': selectedGender,
-        'mobile': mobile,
-        'email': email,
-        'teamName': teamName,
-        'coordinatorid': stcoordinatorId, // Save coordinatorId in Firestore
-        'memberNames': memberNamesList.join(', '),
-      });
+      try {
+        await firestore
+            .collection('events')
+            .doc(eventName)
+            .collection('participants')
+            .add({
+          'participantName': participantName,
+          'age': age,
+          'collegeName': collegeName,
+          'gender': selectedGender,
+          'mobile': mobile,
+          'email': email,
+          'teamName': teamName,
+          'coordinatorid': stcoordinatorId, // Save coordinatorId in Firestore
+          'memberNames': memberNamesList.join(', '),
+        });
 
-      // Show success message and clear form fields
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Registration data saved successfully'),
-        duration: Duration(seconds: 2),
-      ));
-      // Clear form fields
-      // ...
-    } catch (error) {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error saving registration data: $error'),
-        duration: const Duration(seconds: 2),
-      ));
+        // Clear text field controllers
+        participantNameController.clear();
+        ageController.clear();
+        collegeNameController.clear();
+        mobileController.clear();
+        emailController.clear();
+        teamNameController.clear();
+        memberNamesList.clear();
+        // Assuming you have a reference to the MultipleNamesTextField widget
+        // You might need to adjust this part based on how you're managing the widget's state
+        setState(() {
+          memberNamesList.clear();
+        });
+        // Show success message and clear form fields
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Registration data saved successfully'),
+          duration: Duration(seconds: 2),
+        ));
+        // Clear form fields
+        // ...
+      } catch (error) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error saving registration data: $error'),
+          duration: const Duration(seconds: 2),
+        ));
+      }
     }
   }
 }
@@ -292,11 +437,14 @@ class _EventRegistrationPageState extends State<EventRegistrationPage> {
 class MultipleNamesTextField extends StatefulWidget {
   final Function(List<String>) onUpdateMemberNames;
   final int teamsize;
+  final VoidCallback onClearMemberNames;
 
   MultipleNamesTextField({
+    Key? key,
     required this.onUpdateMemberNames,
     required this.teamsize,
-  });
+    required this.onClearMemberNames, // Add this line
+  }) : super(key: key);
 
   @override
   _MultipleNamesTextFieldState createState() => _MultipleNamesTextFieldState();

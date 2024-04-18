@@ -26,6 +26,8 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   google_fonts: ^6.2.1
   fluttertoast: ^8.2.5
+  flutter_svg: ^1.0.3
+  email_validator: ^2.0.1
 
 flutter_native_splash:
   color: "42a5f5"
@@ -36,7 +38,7 @@ flutter_native_splash:
 
 assets:
   - assets/splash.png
-  - assets/splash.png
+  - assets/images/splash.png
 
 dev_dependencies:
   flutter_test:
@@ -45,3 +47,14 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/splash.png
+    - assets/images/splash.png
+    - assets/images/
+
+  fonts:
+    - family: NotoSerif
+      fonts:
+        - asset: assets/fonts/NotoSerif-Regular.ttf
+        - asset: assets/fonts/NotoSerif-Bold.ttf
+          weight: 700

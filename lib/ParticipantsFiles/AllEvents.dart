@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:oneflutter/uicomponents/EventsTile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'RegisteringForEvent.dart';
@@ -115,20 +116,15 @@ class AllEvents extends StatelessWidget {
 
                 return Card(
                   elevation: 4,
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
-                    title: Text(
-                      'Event Date: ${data['eventDate']}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 8),
-                        Text('Game: ${data['selectedGame']}'),
-                        const SizedBox(height: 4),
-                        Text('Venue: ${data['venue']}'),
+                        GamesTile(
+                          gameName: ' ${data['selectedGame']}',
+                          date: 'Event Date: ${data['eventDate']}',
+                          venue: 'Venue: ${data['venue']}',
+                        ),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () {

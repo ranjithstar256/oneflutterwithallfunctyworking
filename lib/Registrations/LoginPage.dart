@@ -5,6 +5,7 @@ import 'package:oneflutter/ParticipantsFiles/CoordinatorDetailsScreen.dart';
 import 'package:oneflutter/Registrations/signuppage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../components/common/page_header.dart';
 import '../dataModel/UserData.dart';
 import 'ForgotPasswordPage.dart';
 
@@ -134,10 +135,12 @@ class _LoginPageState extends State<LoginPage> {
                 setLoggedIn(true);
 
                 // Navigate to next page
-                */ /* Navigator.push(
+                */
+/* Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AllEvents()),
-                );*/ /*
+                );*/
+/*
               },
               child: const Text('Sign In'),
             ),
@@ -230,11 +233,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             SizedBox(height: 20),
             // Add some space at the top
-            const Icon(
-              Icons.lock,
-              size: 60, // Adjust icon size as needed
-              color: Colors.blue, // Change icon color
-            ),
+            const PageHeader(),
             const SizedBox(height: 10),
             // Add some space between icon and text
             const Text(
@@ -397,7 +396,6 @@ Future<UserData?> getUserDataFromFirestore(
         backgroundColor: Colors.green,
       ));
       return null;
-      return null;
     }
   } catch (error) {
     // Handle any errors that occur during data retrieval
@@ -405,8 +403,6 @@ Future<UserData?> getUserDataFromFirestore(
       content: Text('Something went wrong!'),
       backgroundColor: Colors.green,
     ));
-    return null;
-    print('Error retrieving user data: $error');
     return null;
   }
 }
