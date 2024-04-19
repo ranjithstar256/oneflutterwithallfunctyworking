@@ -2,8 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:oneflutter/CoOrdinatorSignIn.dart';
 import 'package:oneflutter/ParticipantsFiles/AllEvents.dart';
-import 'package:oneflutter/ParticipantsFiles/CoordinatorDetailsScreen.dart';
 import 'package:oneflutter/Registrations/LoginPage.dart';
+import 'package:oneflutter/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Registrations/signuppage.dart';
@@ -23,7 +23,7 @@ class MyApp6 extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CoordinatorDetailsScreen(),
+      home: SplashScreen(),
     );
   }
 }

@@ -31,14 +31,10 @@ dependencies:
 
 flutter_native_splash:
   color: "42a5f5"
-  image: assets/splash.png
-  image_dark: assets/splash.png
+  image: assets/splash.jpg
+  image_dark: assets/splash.jpg
   ios: true
   android: true
-
-assets:
-  - assets/splash.png
-  - assets/images/splash.png
 
 dev_dependencies:
   flutter_test:
@@ -48,9 +44,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/splash.png
-    - assets/images/splash.png
     - assets/images/
+    - images/splash.jpg
 
   fonts:
     - family: NotoSerif

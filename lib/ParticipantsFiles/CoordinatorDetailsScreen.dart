@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:oneflutter/CoOrdinatorSignIn.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Registrations/signuppage.dart';
 import '../logoutPage.dart';
@@ -18,11 +19,11 @@ void main() async {
       overlays: []); // Hide the system UI overlays
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(MyAppwww());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyAppwww extends StatelessWidget {
+  const MyAppwww({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CoordinatorDetailsScreen(),
+      home: const CoordinatorDetailsScreen(),
     );
   }
 }
@@ -78,7 +79,7 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
 
   ValueNotifier<String> _searchQuery = ValueNotifier<String>('');
   List<DocumentSnapshot> _allEvents = []; // Initialize list to store all events
-  ValueNotifier<List<DocumentSnapshot>> _filteredEvents =
+  final ValueNotifier<List<DocumentSnapshot>> _filteredEvents =
       ValueNotifier<List<DocumentSnapshot>>(
           []); // Use ValueNotifier to track changes
 
@@ -113,13 +114,13 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
       if (index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyAppdddd()),
+          MaterialPageRoute(builder: (context) => const MyAppdddd()),
         );
       }
       if (index == 2) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyAppeeee()),
+          MaterialPageRoute(builder: (context) => const MyAppeeee()),
         );
       }
     }
@@ -205,13 +206,39 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
               child: Text('No coordinators available'),
             );
           }
+          // Filter out past events
+          var currentDate = DateTime.now();
 
+          var filteredEvents = snapshot.data!.docs.where((document) {
+            var toDateString = document['toDate']; // Get the toDate string
+            var toDate = DateFormat('dd-MM-yyyy')
+                .parse(toDateString); // Parse the string to DateTime
+            // Compare toDate with currentDate, considering only the date part
+            return toDate.isAfter(currentDate) ||
+                toDate.isAtSameMomentAs(currentDate);
+          }).toList();
+
+          if (_allEvents.isEmpty) {
+            print('xyzast Filtered Events:');
+            filteredEvents.forEach((event) {
+              var toDate = _parseToDate(event['toDate']);
+              print('xyzast Event Date: $toDate');
+            });
+            filteredEvents.forEach((event) {
+              var toDate = _parseToDate(event['toDate']);
+              print('xyzastunfil Event Date: $toDate');
+            });
+            _allEvents = filteredEvents;
+            _filteredEvents.value = _allEvents;
+          }
+
+/*
           // Initialize _allEvents with all events
           if (_allEvents.isEmpty) {
             _allEvents = snapshot.data!.docs;
             _filteredEvents.value =
                 _allEvents; // Initialize _filteredEvents with all events
-          }
+          }*/
 
           return Column(
             children: [
@@ -220,14 +247,14 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
                 child: Text(
                   "Explore Events held in Colleges",
                   style: GoogleFonts.castoro(
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       color: Color.fromARGB(255, 5, 81, 99),
                       fontSize: 37,
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: TextField(
@@ -235,7 +262,7 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
                     _searchQuery.value = value; // Update search query
                   },
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                     hintText: 'Search for events..',
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey.shade600),
@@ -246,7 +273,7 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Expanded(
                 child: ValueListenableBuilder<List<DocumentSnapshot>>(
                   valueListenable: _filteredEvents,
@@ -256,15 +283,24 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
                       itemBuilder: (context, index) {
                         var document = value[index];
                         return GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             String coordinatorId = document['coordinatorid'];
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AllEvents(coordinatorId: coordinatorId),
-                              ),
-                            );
+
+                            if (await checkIfLoggedIn()) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      AllEvents(coordinatorId: coordinatorId),
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyAppdddd()),
+                              );
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -308,6 +344,27 @@ class _CoordinatorDetailsScreenState extends State<CoordinatorDetailsScreen> {
   }
 }
 
+DateTime _parseToDate(String toDate) {
+  var parts = toDate.split('-'); // Split the date string by '-'
+  var year = int.parse(parts[2]);
+  var month = int.parse(parts[0]);
+  var day = int.parse(parts[1]);
+
+  // Check if the date string contains the time component
+  if (parts.length > 3) {
+    var timeParts = parts[3].split(':'); // Split the time string by ':'
+    if (timeParts.length >= 2) {
+      // If hours and minutes are present, parse them
+      var hour = int.parse(timeParts[0]);
+      var minute = int.parse(timeParts[1]);
+      return DateTime(year, month, day, hour, minute);
+    }
+  }
+
+  // If no time component or invalid time format, return the date without time
+  return DateTime(year, month, day);
+}
+
 class InfoCard extends StatelessWidget {
   const InfoCard({
     required this.name,
@@ -324,7 +381,7 @@ class InfoCard extends StatelessWidget {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             backgroundColor: Colors.white,
             radius: 50, // Increase the radius to 50
             child: Icon(
@@ -333,14 +390,15 @@ class InfoCard extends StatelessWidget {
               size: 40, // Adjust icon size as needed
             ),
           ),
-          SizedBox(height: 20), // Adjust spacing between CircleAvatar and text
+          const SizedBox(height: 20),
+          // Adjust spacing between CircleAvatar and text
           Text(
             name,
-            style: TextStyle(color: Colors.black),
+            style: const TextStyle(color: Colors.black),
           ),
           Text(
             profession,
-            style: TextStyle(color: Colors.black),
+            style: const TextStyle(color: Colors.black),
           ),
         ],
       ),
@@ -353,10 +411,10 @@ class PrivacyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Privacy Policy'),
+        title: const Text('Privacy Policy'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +476,7 @@ class HelpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Help'),
+        title: const Text('Help'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -426,38 +484,38 @@ class HelpPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Help Center',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ListTile(
-                leading: Icon(Icons.info),
-                title: Text('About Us'),
+                leading: const Icon(Icons.info),
+                title: const Text('About Us'),
                 onTap: () {
                   // Navigate to the About Us page
                 },
               ),
               ListTile(
-                leading: Icon(Icons.email),
-                title: Text('Contact Us'),
+                leading: const Icon(Icons.email),
+                title: const Text('Contact Us'),
                 onTap: () {
                   // Navigate to the Contact Us page
                 },
               ),
               ListTile(
-                leading: Icon(Icons.question_answer),
-                title: Text('FAQs'),
+                leading: const Icon(Icons.question_answer),
+                title: const Text('FAQs'),
                 onTap: () {
                   // Navigate to the FAQs page
                 },
               ),
               ListTile(
-                leading: Icon(Icons.policy),
-                title: Text('Privacy Policy'),
+                leading: const Icon(Icons.policy),
+                title: const Text('Privacy Policy'),
                 onTap: () {
                   // Navigate to the Privacy Policy page
                 },
@@ -468,4 +526,9 @@ class HelpPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<bool> checkIfLoggedIn() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('partiloggedin') ?? false;
 }
